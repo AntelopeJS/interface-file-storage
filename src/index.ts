@@ -19,6 +19,13 @@ export interface UploadRequest {
   path?: string;
   /** Optional custom metadata to attach to the file */
   metadata?: Record<string, string>;
+  /**
+   * When true, the file is uploaded to a reserved staging area (see
+   * {@link STAGING_PREFIX}) so that abandoned uploads can be auto-expired by
+   * the backend. Confirmed files must later be promoted with {@link PromoteFile}
+   * to move them out of staging. Defaults to false (regular, permanent upload).
+   */
+  staging?: boolean;
 }
 
 /**
@@ -53,6 +60,14 @@ export interface PresignedReadResponse {
   url: string;
   /** Timestamp when the URL expires (undefined if public) */
   expiresAt?: number;
+}
+
+/**
+ * Response returned after promoting a staged file out of the staging area.
+ */
+export interface PromoteFileResponse {
+  /** Final resource key of the promoted file (staging prefix stripped) */
+  resourceKey: string;
 }
 
 /**
@@ -94,6 +109,56 @@ export class FileNotFoundError extends Error {
     super(`File not found: ${resourceKey}`);
     this.name = "FileNotFoundError";
   }
+}
+
+/**
+ * Reserved key prefix for files uploaded to the staging area.
+ *
+ * Staged files live under this prefix so the backend can auto-expire abandoned
+ * uploads (e.g. via an S3 lifecycle rule) while confirmed files are preserved
+ * once promoted with {@link PromoteFile}.
+ */
+export const STAGING_PREFIX = "__staging__/";
+
+/**
+ * Checks whether a resource key points to the staging area.
+ *
+ * @param resourceKey - The resource key to inspect
+ * @returns true if the key lives under {@link STAGING_PREFIX}
+ */
+export function isStagedKey(resourceKey: string): boolean {
+  return resourceKey.startsWith(STAGING_PREFIX);
+}
+
+/**
+ * Returns the staged variant of a resource key.
+ *
+ * Idempotent: a key already under {@link STAGING_PREFIX} is returned unchanged.
+ *
+ * @param resourceKey - The base resource key
+ * @returns The key prefixed with {@link STAGING_PREFIX}
+ */
+export function toStagedKey(resourceKey: string): string {
+  if (isStagedKey(resourceKey)) {
+    return resourceKey;
+  }
+  return `${STAGING_PREFIX}${resourceKey}`;
+}
+
+/**
+ * Returns the promoted (final) variant of a resource key by stripping the
+ * {@link STAGING_PREFIX}.
+ *
+ * Idempotent: a key that is not staged is returned unchanged.
+ *
+ * @param resourceKey - The staged resource key
+ * @returns The key with {@link STAGING_PREFIX} removed
+ */
+export function stripStagingPrefix(resourceKey: string): string {
+  if (!isStagedKey(resourceKey)) {
+    return resourceKey;
+  }
+  return resourceKey.slice(STAGING_PREFIX.length);
 }
 
 /**
@@ -152,6 +217,16 @@ export namespace internal {
   export const getFileMetadata =
     InterfaceFunction<
       (resourceKey: string, storage?: string) => Promise<FileMetadata>
+    >();
+
+  /**
+   * Moves a stored object from one resource key to another within the same
+   * storage. Implementations MUST handle a missing source gracefully (no-op) so
+   * the operation is idempotent and {@link PromoteFile} is safe to call twice.
+   */
+  export const moveFile =
+    InterfaceFunction<
+      (sourceKey: string, destKey: string, storage?: string) => Promise<void>
     >();
 }
 
@@ -235,4 +310,55 @@ export function GetFileMetadata(
   storage?: string,
 ): Promise<FileMetadata> {
   return internal.getFileMetadata(resourceKey, storage);
+}
+
+/**
+ * Moves a stored object from one resource key to another within the same storage.
+ *
+ * The move is performed by the backend (copy + delete on S3, rename on local
+ * filesystem). A missing source is handled gracefully, making the call safe to
+ * retry.
+ *
+ * @param sourceKey - The current resource key of the object
+ * @param destKey - The target resource key
+ * @param storage - Optional storage identifier for multi-bucket setups
+ */
+export function MoveFile(
+  sourceKey: string,
+  destKey: string,
+  storage?: string,
+): Promise<void> {
+  return internal.moveFile(sourceKey, destKey, storage);
+}
+
+/**
+ * Promotes a staged file out of the staging area to its final resource key.
+ *
+ * Strips the {@link STAGING_PREFIX} from the key and moves the underlying object
+ * accordingly via {@link MoveFile}. When the provided key is not staged, the call
+ * is a no-op and the key is returned unchanged, so promoting twice is safe
+ * (idempotent): the second call sees an already-clean key.
+ *
+ * The promotion logic lives here, built on the {@link MoveFile} primitive, so the
+ * idempotency contract is enforced once for every backend.
+ *
+ * @param resourceKey - The staged resource key returned by a staging upload
+ * @param storage - Optional storage identifier for multi-bucket setups
+ * @returns The final resource key after promotion
+ * @throws FileNotFoundError if the staged object no longer exists (e.g. it
+ *   expired before promotion) and was not already promoted
+ */
+export async function PromoteFile(
+  resourceKey: string,
+  storage?: string,
+): Promise<PromoteFileResponse> {
+  if (!isStagedKey(resourceKey)) {
+    return { resourceKey };
+  }
+  const destKey = stripStagingPrefix(resourceKey);
+  await internal.moveFile(resourceKey, destKey, storage);
+  if (!(await internal.fileExists(destKey, storage))) {
+    throw new FileNotFoundError(resourceKey);
+  }
+  return { resourceKey: destKey };
 }

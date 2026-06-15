@@ -118,7 +118,7 @@ export class FileNotFoundError extends Error {
  * uploads (e.g. via an S3 lifecycle rule) while confirmed files are preserved
  * once promoted with {@link PromoteFile}.
  */
-export const STAGING_PREFIX = "tmp/";
+export const STAGING_PREFIX = "__staging__/";
 
 /**
  * Checks whether a resource key points to the staging area.
@@ -221,21 +221,12 @@ export namespace internal {
 
   /**
    * Moves a stored object from one resource key to another within the same
-   * storage. Implementations should handle a missing source gracefully so the
-   * operation is idempotent.
+   * storage. Implementations MUST handle a missing source gracefully (no-op) so
+   * the operation is idempotent and {@link PromoteFile} is safe to call twice.
    */
   export const moveFile =
     InterfaceFunction<
       (sourceKey: string, destKey: string, storage?: string) => Promise<void>
-    >();
-
-  /**
-   * Promotes a staged file out of the staging area to its final key.
-   * No-op (returns the key unchanged) when the key is not staged.
-   */
-  export const promoteFile =
-    InterfaceFunction<
-      (resourceKey: string, storage?: string) => Promise<PromoteFileResponse>
     >();
 }
 
@@ -344,16 +335,30 @@ export function MoveFile(
  * Promotes a staged file out of the staging area to its final resource key.
  *
  * Strips the {@link STAGING_PREFIX} from the key and moves the underlying object
- * accordingly. When the provided key is not staged, the call is a no-op and the
- * key is returned unchanged, so promoting twice is safe (idempotent).
+ * accordingly via {@link MoveFile}. When the provided key is not staged, the call
+ * is a no-op and the key is returned unchanged, so promoting twice is safe
+ * (idempotent): the second call sees an already-clean key.
+ *
+ * The promotion logic lives here, built on the {@link MoveFile} primitive, so the
+ * idempotency contract is enforced once for every backend.
  *
  * @param resourceKey - The staged resource key returned by a staging upload
  * @param storage - Optional storage identifier for multi-bucket setups
  * @returns The final resource key after promotion
+ * @throws FileNotFoundError if the staged object no longer exists (e.g. it
+ *   expired before promotion) and was not already promoted
  */
-export function PromoteFile(
+export async function PromoteFile(
   resourceKey: string,
   storage?: string,
 ): Promise<PromoteFileResponse> {
-  return internal.promoteFile(resourceKey, storage);
+  if (!isStagedKey(resourceKey)) {
+    return { resourceKey };
+  }
+  const destKey = stripStagingPrefix(resourceKey);
+  await internal.moveFile(resourceKey, destKey, storage);
+  if (!(await internal.fileExists(destKey, storage))) {
+    throw new FileNotFoundError(resourceKey);
+  }
+  return { resourceKey: destKey };
 }

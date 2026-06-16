@@ -1,6 +1,6 @@
 {
   "name": "@antelopejs/interface-file-storage",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "AntelopeJS interface for file storage with presigned URLs, upload/download, and metadata",
   "keywords": [
     "antelopejs",

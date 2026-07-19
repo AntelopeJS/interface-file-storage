@@ -70,4 +70,4 @@ Do not implement `PromoteFile` in a backend — the promotion/idempotency contra
 
 ## Deeper reference
 
-Exact signatures and TSDoc live in the shipped `dist/index.d.ts`. The package docs cover this in two chapters — *Introduction* (concepts, visibility, error classes) and *File Operations* (full upload flow, staging and promotion, request/response tables) — at https://github.com/AntelopeJS/interface-file-storage/tree/main/docs (`docs/` is not shipped in the npm package). Do not guess beyond them.
+Exact signatures and TSDoc live in the shipped `dist/index.d.ts`. This package's `docs/` covers the rest in two chapters — *Introduction* (concepts, visibility, error classes) and *File Operations* (full upload flow, staging and promotion, request/response tables). Do not guess beyond them.

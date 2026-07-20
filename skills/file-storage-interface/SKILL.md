@@ -30,7 +30,7 @@ import type {
 
 ```ts
 const { uploadUrl, resourceKey, headers } = await CreateUploadUrl(
-  { filename: "avatar.png", size, mimetype: "image/png", path: "avatars", staging: true },
+  { filename: "book-cover.png", size, mimetype: "image/png", path: "book-covers", staging: true },
   { maxSize: 5 * 1024 * 1024, allowedMimetypes: ["image/png", "image/jpeg"] },
 );
 // Client PUTs the file bytes to uploadUrl, sending `headers` unmodified.

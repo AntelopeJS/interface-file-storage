@@ -4,29 +4,32 @@
   "description": "AntelopeJS interface for file storage with presigned URLs, upload/download, and metadata",
   "keywords": [
     "antelopejs",
-    "interface",
     "file-storage",
-    "upload",
-    "presigned-url"
+    "interface",
+    "presigned-url",
+    "upload"
   ],
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AntelopeJS/interface-file-storage.git"
   },
-  "license": "Apache-2.0",
-  "packageManager": "pnpm@10.6.5",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "files": [
     "dist",
     "docs",
     "skills"
   ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "build": "rimraf dist && tsc",
@@ -55,10 +58,7 @@
   "peerDependencies": {
     "@antelopejs/interface-core": ">=0.0.3 <1.0.0"
   },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
+  "packageManager": "pnpm@10.6.5",
   "antelopeJs": {
     "skills": [
       "./skills"

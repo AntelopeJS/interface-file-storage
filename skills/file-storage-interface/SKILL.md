@@ -15,14 +15,28 @@ Single root export — add `@antelopejs/interface-file-storage` to the module's 
 
 ```ts
 import {
-  CreateUploadUrl, CreateReadUrl, DeleteFile, FileExists,
-  GetFileMetadata, MoveFile, PromoteFile,
-  STAGING_PREFIX, isStagedKey, toStagedKey, stripStagingPrefix,
-  UploadValidationError, FileNotFoundError,
+  CreateUploadUrl,
+  CreateReadUrl,
+  DeleteFile,
+  FileExists,
+  GetFileMetadata,
+  MoveFile,
+  PromoteFile,
+  STAGING_PREFIX,
+  isStagedKey,
+  toStagedKey,
+  stripStagingPrefix,
+  UploadValidationError,
+  FileNotFoundError,
 } from "@antelopejs/interface-file-storage";
 import type {
-  UploadRequest, UploadConstraints, PresignedUploadResponse,
-  PresignedReadResponse, PromoteFileResponse, FileMetadata, Visibility,
+  UploadRequest,
+  UploadConstraints,
+  PresignedUploadResponse,
+  PresignedReadResponse,
+  PromoteFileResponse,
+  FileMetadata,
+  Visibility,
 } from "@antelopejs/interface-file-storage";
 ```
 
@@ -30,7 +44,13 @@ import type {
 
 ```ts
 const { uploadUrl, resourceKey, headers } = await CreateUploadUrl(
-  { filename: "book-cover.png", size, mimetype: "image/png", path: "book-covers", staging: true },
+  {
+    filename: "book-cover.png",
+    size,
+    mimetype: "image/png",
+    path: "book-covers",
+    staging: true,
+  },
   { maxSize: 5 * 1024 * 1024, allowedMimetypes: ["image/png", "image/jpeg"] },
 );
 // Client PUTs the file bytes to uploadUrl, sending `headers` unmodified.
@@ -70,4 +90,4 @@ Do not implement `PromoteFile` in a backend — the promotion/idempotency contra
 
 ## Deeper reference
 
-Exact signatures and TSDoc live in the shipped `dist/index.d.ts`. This package's `docs/` covers the rest in two chapters — *Introduction* (concepts, visibility, error classes) and *File Operations* (full upload flow, staging and promotion, request/response tables). Do not guess beyond them.
+Exact signatures and TSDoc live in the shipped `dist/index.d.ts`. This package's `docs/` covers the rest in two chapters — _Introduction_ (concepts, visibility, error classes) and _File Operations_ (full upload flow, staging and promotion, request/response tables). Do not guess beyond them.

@@ -1,6 +1,5 @@
 # Changelog
 
-
 ## v0.1.2
 
 [compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.1...v0.1.2)
@@ -49,7 +48,6 @@
 
 ## v0.0.2
 
-
 ### 🏡 Chore
 
 - Initial commit ([5fcd057](https://github.com/AntelopeJS/interface-file-storage/commit/5fcd057))
@@ -57,4 +55,3 @@
 ### ❤️ Contributors
 
 - Antony Rizzitelli <upd4ting@gmail.com>
-

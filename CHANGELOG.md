@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.1.3
+
+[compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.2...v0.1.3)
+
+### 🚀 Enhancements
+
+- **storage:** Define create-only uploads and provider-owned promotion ([#8](https://github.com/AntelopeJS/interface-file-storage/pull/8))
+
+### 🏡 Chore
+
+- Replace Biome with oxlint, oxfmt and Knip ([#6](https://github.com/AntelopeJS/interface-file-storage/pull/6))
+
+### 🤖 CI
+
+- Standardize npm releases ([#5](https://github.com/AntelopeJS/interface-file-storage/pull/5))
+
+### ❤️ Contributors
+
+- Antony Rizzitelli <rizzitelli.antony@pm.me>
+- Thomas ([@Thomasims](http://github.com/Thomasims))
+
 ## v0.1.2
 
 [compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.1...v0.1.2)

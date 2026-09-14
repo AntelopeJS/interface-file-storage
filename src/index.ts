@@ -113,6 +113,16 @@ export class FileNotFoundError extends Error {
   }
 }
 
+/** An occupied or incomplete destination cannot be verified as this promotion. */
+export class FileConflictError extends Error {
+  readonly code = "FILE_CONFLICT";
+
+  constructor(resourceKey: string) {
+    super(`File conflict: ${resourceKey}`);
+    this.name = "FileConflictError";
+  }
+}
+
 /**
  * Reserved key prefix for files uploaded to the staging area.
  *
@@ -223,12 +233,27 @@ export namespace internal {
 
   /**
    * Moves a stored object from one resource key to another within the same
-   * storage. Implementations MUST handle a missing source gracefully (no-op) so
-   * the operation is idempotent and {@link PromoteFile} is safe to call twice.
+   * storage. Implementations MUST handle a missing source gracefully (no-op).
+   * This generic operation is independent of the no-clobber promotion contract.
    */
   export const moveFile =
     InterfaceFunction<
       (sourceKey: string, destKey: string, storage?: string) => Promise<void>
+    >();
+
+  /**
+   * Promotes to stripStagingPrefix(resourceKey) in the same selected storage.
+   * Publishes complete bytes, metadata, visibility, and trusted source provenance
+   * atomically without clobbering. Provenance must not be upload-controlled metadata.
+   * A complete matching destination succeeds even when the source is gone.
+   * Foreign or unverifiable incomplete destinations throw FileConflictError.
+   * Missing source without a committed destination throws FileNotFoundError.
+   * Unknown outcomes throw; source cleanup follows verified final publication.
+   * Non-staged keys return unchanged. No cancellation fence is provided.
+   */
+  export const promoteFile =
+    InterfaceFunction<
+      (resourceKey: string, storage?: string) => Promise<PromoteFileResponse>
     >();
 }
 
@@ -238,6 +263,9 @@ export namespace internal {
  * The client must use the returned URL with a PUT request, including
  * all headers specified in the response. Any modification to the
  * Content-Type or Content-Length will cause the signature to be invalid.
+ * An accepted upload cannot be overwritten by replaying its URL. Concurrent or
+ * repeated attempts conflict explicitly; request a fresh URL to upload again.
+ * Providers must enforce required create-only headers and preserve complete metadata.
  *
  * @param request - Upload request details (filename, size, mimetype)
  * @param constraints - Optional validation constraints
@@ -336,31 +364,24 @@ export function MoveFile(
 /**
  * Promotes a staged file out of the staging area to its final resource key.
  *
- * Strips the {@link STAGING_PREFIX} from the key and moves the underlying object
- * accordingly via {@link MoveFile}. When the provided key is not staged, the call
- * is a no-op and the key is returned unchanged, so promoting twice is safe
- * (idempotent): the second call sees an already-clean key.
- *
- * The promotion logic lives here, built on the {@link MoveFile} primitive, so the
- * idempotency contract is enforced once for every backend.
+ * The provider publishes complete bytes and metadata at the key obtained by
+ * stripping {@link STAGING_PREFIX}, without overwriting an existing destination.
+ * It preserves visibility and trusted source provenance in the same storage.
+ * Repeating a staged promotion succeeds only for a complete matching destination,
+ * including after source cleanup. Non-staged keys are returned unchanged.
+ * This delegates directly to the provider, never to {@link MoveFile} or existence
+ * checks. Unknown outcomes throw and can be retried with the same key and storage.
  *
  * @param resourceKey - The staged resource key returned by a staging upload
  * @param storage - Optional storage identifier for multi-bucket setups
  * @returns The final resource key after promotion
  * @throws FileNotFoundError if the staged object no longer exists (e.g. it
  *   expired before promotion) and was not already promoted
+ * @throws FileConflictError if the destination is foreign or unverifiably incomplete
  */
-export async function PromoteFile(
+export function PromoteFile(
   resourceKey: string,
   storage?: string,
 ): Promise<PromoteFileResponse> {
-  if (!isStagedKey(resourceKey)) {
-    return { resourceKey };
-  }
-  const destKey = stripStagingPrefix(resourceKey);
-  await internal.moveFile(resourceKey, destKey, storage);
-  if (!(await internal.fileExists(destKey, storage))) {
-    throw new FileNotFoundError(resourceKey);
-  }
-  return { resourceKey: destKey };
+  return internal.promoteFile(resourceKey, storage);
 }

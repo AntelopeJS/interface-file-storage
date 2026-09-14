@@ -33,6 +33,7 @@
   },
   "scripts": {
     "build": "rimraf dist && tsc",
+    "test": "pnpm build && node --test test/*.test.mjs",
     "format": "oxfmt .",
     "lint:fix": "oxlint --fix",
     "lint": "oxlint",

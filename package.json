@@ -21,21 +21,10 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "attachments": [
-        "dist/attachments.d.ts"
-      ]
-    }
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./attachments": {
-      "types": "./dist/attachments.d.ts",
-      "default": "./dist/attachments.js"
     }
   },
   "publishConfig": {

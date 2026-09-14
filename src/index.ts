@@ -19,6 +19,8 @@ export interface UploadRequest {
   path?: string;
   /** Optional custom metadata to attach to the file */
   metadata?: Record<string, string>;
+  /** Optional visibility override for this file */
+  visibility?: Visibility;
   /**
    * When true, the file is uploaded to a reserved staging area (see
    * {@link STAGING_PREFIX}) so that abandoned uploads can be auto-expired by

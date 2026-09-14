@@ -21,6 +21,7 @@ Detailed documentation is available in the `docs` directory:
 
 - [Introduction](./docs/1.introduction.md) - Overview, visibility modes, and error handling
 - [File Operations](./docs/2.file-operations.md) - Upload, download, delete, and metadata operations
+- [Immutable File Seals](./docs/3.immutable-file-seals.md) - Generation-bound admission, replay, and terminal removal
 
 ## License
 

@@ -1,5 +1,81 @@
 import { InterfaceFunction } from "@antelopejs/interface-core";
 
+/** Reserved logical destination namespace for immutable admission-bound seals. */
+export const SEALED_PREFIX = "__sealed__/";
+
+/** An immutable object version in a stable backing store, not a storage alias. */
+export interface FileGeneration {
+  storageId: string;
+  resourceKey: string;
+  /** Never reused, including when identical bytes are uploaded again. */
+  generation: string;
+}
+
+/** Metadata and identity observed from the same immutable generation. */
+export interface FileSnapshot {
+  identity: FileGeneration;
+  metadata: FileMetadata;
+}
+
+/** Durable, backend-authenticated ownership; never copied from upload metadata. */
+export interface FileSealProvenance {
+  admissionId: string;
+  source: FileGeneration;
+}
+
+/** The complete immutable admission tuple, persisted by the caller before sealing. */
+export interface SealFileRequest extends FileSealProvenance {
+  destinationKey: string;
+}
+
+/** A committed immutable destination and its durable ownership proof. */
+export interface SealedFile extends FileSnapshot {
+  provenance: FileSealProvenance;
+}
+
+/** No publication decision exists; an immutable admission binding may already exist. */
+export interface AbsentFileSeal {
+  status: "absent";
+}
+
+/** A durably published destination whose metadata is readable or repairable. */
+export interface CommittedFileSeal {
+  status: "sealed";
+  file: SealedFile;
+}
+
+/** A permanent cancellation fence; the admission can never seal again. */
+export interface RemovedFileSeal {
+  status: "removed";
+}
+
+/** Durable admission state, including terminal removal after an unknown outcome. */
+export type FileSealState =
+  | AbsentFileSeal
+  | CommittedFileSeal
+  | RemovedFileSeal;
+
+/** Fail-closed outcomes for generation-aware operations. */
+export type FileSealErrorCode =
+  | "UNSUPPORTED"
+  | "STORAGE_MISMATCH"
+  | "GENERATION_MISMATCH"
+  | "DESTINATION_CONFLICT"
+  | "OUTCOME_UNKNOWN"
+  | "INVALID_REQUEST"
+  | "ADMISSION_REMOVED";
+
+/** OUTCOME_UNKNOWN requires reconciliation, never a new admission or legacy fallback. */
+export class FileSealError extends Error {
+  constructor(
+    message: string,
+    public readonly code: FileSealErrorCode,
+  ) {
+    super(message);
+    this.name = "FileSealError";
+  }
+}
+
 /**
  * Visibility mode for files
  */
@@ -165,6 +241,30 @@ export function stripStagingPrefix(resourceKey: string): string {
  * @internal
  */
 export namespace internal {
+  /** Captures metadata and an immutable generation atomically. */
+  export const getFileSnapshot =
+    InterfaceFunction<
+      (resourceKey: string, storage?: string) => Promise<FileSnapshot>
+    >();
+
+  /** Publishes expected bytes and provenance without clobbering or deleting the source. */
+  export const sealFile =
+    InterfaceFunction<
+      (request: SealFileRequest, storage?: string) => Promise<SealedFile>
+    >();
+
+  /** Reconciles the complete admission tuple against durable state. */
+  export const getFileSeal =
+    InterfaceFunction<
+      (request: SealFileRequest, storage?: string) => Promise<FileSealState>
+    >();
+
+  /** Permanently fences sealing and conditionally removes only the owned generation. */
+  export const removeSealedFile =
+    InterfaceFunction<
+      (request: SealFileRequest, storage?: string) => Promise<RemovedFileSeal>
+    >();
+
   /**
    * Creates a presigned URL for uploading a file.
    * Validates the request against constraints before generating the URL.
@@ -228,6 +328,58 @@ export namespace internal {
     InterfaceFunction<
       (sourceKey: string, destKey: string, storage?: string) => Promise<void>
     >();
+}
+
+/**
+ * Captures a stable backing-store identity, immutable generation, and matching metadata.
+ * Generations must distinguish every upload, including identical-byte replays.
+ * Throws FileNotFoundError for a missing object or UNSUPPORTED without safe primitives.
+ */
+export function GetFileSnapshot(
+  resourceKey: string,
+  storage?: string,
+): Promise<FileSnapshot> {
+  return internal.getFileSnapshot(resourceKey, storage);
+}
+
+/**
+ * Copies exactly the expected immutable generation to a no-clobber destination.
+ * Matching durable admission provenance returns the original committed destination,
+ * even if the source is gone. Missing or different provenance fails closed.
+ * The source is never deleted. A terminally removed admission cannot seal again.
+ * See docs/3.immutable-file-seals.md for durability and reconciliation requirements.
+ */
+export function SealFile(
+  request: SealFileRequest,
+  storage?: string,
+): Promise<SealedFile> {
+  return internal.sealFile(request, storage);
+}
+
+/**
+ * Reads durable admission state using the same complete request as SealFile.
+ * A changed tuple for an existing admission throws DESTINATION_CONFLICT.
+ * An absent result does not fence an in-flight seal; use RemoveSealedFile to cancel.
+ */
+export function GetFileSeal(
+  request: SealFileRequest,
+  storage?: string,
+): Promise<FileSealState> {
+  return internal.getFileSeal(request, storage);
+}
+
+/**
+ * Permanently cancels an admission, including before its first seal commits.
+ * Success means logical absence and no delayed seal can publish the generation again.
+ * Private physical orphan cleanup may be eventual; issued read URLs expire normally.
+ * Only the recorded destination generation may be deleted; replacements survive.
+ * Retains durable tuple-bound terminal provenance across retries and restarts.
+ */
+export function RemoveSealedFile(
+  request: SealFileRequest,
+  storage?: string,
+): Promise<RemovedFileSeal> {
+  return internal.removeSealedFile(request, storage);
 }
 
 /**

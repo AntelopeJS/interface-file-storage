@@ -1,35 +1,37 @@
-import { test } from "node:test";
-import assert from "node:assert/strict";
+const { mock } = require("node:test");
+const assert = require("node:assert/strict");
 
-import storage from "../dist/index.js";
+const storage = require("../dist/index.js");
+
+afterEach(() => mock.restoreAll());
 
 const SOURCE = "__staging__/tenant-a/document-b.txt";
 const DESTINATION = "tenant-a/document-b.txt";
 const STORAGE = "private-documents";
 
-function rejectLegacyPromotion(context) {
+function rejectLegacyPromotion() {
   for (const operation of ["moveFile", "fileExists"]) {
-    context.mock.method(storage.internal, operation, () => {
+    mock.method(storage.internal, operation, () => {
       assert.fail(`Promotion must not call ${operation}`);
     });
   }
 }
 
-test("promotion delegates the exact staged key and storage to the provider", async (t) => {
-  rejectLegacyPromotion(t);
+it("promotion delegates the exact staged key and storage to the provider", async () => {
+  rejectLegacyPromotion();
   const response = { resourceKey: DESTINATION };
   const result = Promise.resolve(response);
-  const promote = t.mock.method(storage.internal, "promoteFile", () => result);
+  const promote = mock.method(storage.internal, "promoteFile", () => result);
   assert.equal(storage.PromoteFile(SOURCE, STORAGE), result);
   assert.equal(await result, response);
   assert.deepEqual(promote.mock.calls[0].arguments, [SOURCE, STORAGE]);
   assert.equal(promote.mock.callCount(), 1);
 });
 
-test("non-staged keys and omitted storage also use the provider hook", async (t) => {
-  rejectLegacyPromotion(t);
+it("non-staged keys and omitted storage also use the provider hook", async () => {
+  rejectLegacyPromotion();
   const response = { resourceKey: DESTINATION };
-  const promote = t.mock.method(
+  const promote = mock.method(
     storage.internal,
     "promoteFile",
     async () => response,
@@ -45,9 +47,9 @@ const failures = [
 ];
 
 for (const failure of failures) {
-  test(`promotion preserves ${failure.name} without retry or existence fallback`, async (t) => {
-    rejectLegacyPromotion(t);
-    const promote = t.mock.method(storage.internal, "promoteFile", async () => {
+  it(`promotion preserves ${failure.name} without retry or existence fallback`, async () => {
+    rejectLegacyPromotion();
+    const promote = mock.method(storage.internal, "promoteFile", async () => {
       throw failure;
     });
     await assert.rejects(
@@ -58,9 +60,9 @@ for (const failure of failures) {
   });
 }
 
-test("generic MoveFile retains independent forwarding", async (t) => {
-  const move = t.mock.method(storage.internal, "moveFile", async () => {});
-  t.mock.method(storage.internal, "promoteFile", () =>
+it("generic MoveFile retains independent forwarding", async () => {
+  const move = mock.method(storage.internal, "moveFile", async () => {});
+  mock.method(storage.internal, "promoteFile", () =>
     assert.fail("Unexpected promotion"),
   );
   await storage.MoveFile("ordinary-source", "occupied-destination", STORAGE);
@@ -71,7 +73,7 @@ test("generic MoveFile retains independent forwarding", async (t) => {
   ]);
 });
 
-test("upload forwarding preserves private visibility and required conditional headers", async (t) => {
+it("upload forwarding preserves private visibility and required conditional headers", async () => {
   const request = {
     filename: "document.txt",
     size: 17,
@@ -85,7 +87,7 @@ test("upload forwarding preserves private visibility and required conditional he
     expiresAt: 1234,
     headers: { "If-None-Match": "*" },
   };
-  const create = t.mock.method(
+  const create = mock.method(
     storage.internal,
     "createUploadUrl",
     async () => response,
@@ -102,7 +104,7 @@ test("upload forwarding preserves private visibility and required conditional he
   ]);
 });
 
-test("conflict errors are distinct from missing files", () => {
+it("conflict errors are distinct from missing files", () => {
   const conflict = new storage.FileConflictError(DESTINATION);
   assert.ok(conflict instanceof Error);
   assert.equal(conflict instanceof storage.FileNotFoundError, false);
@@ -111,7 +113,7 @@ test("conflict errors are distinct from missing files", () => {
   assert.equal(conflict.message, `File conflict: ${DESTINATION}`);
 });
 
-test("canonical promotion strips only the leading staging prefix", () => {
+it("canonical promotion strips only the leading staging prefix", () => {
   assert.equal(storage.stripStagingPrefix(SOURCE), DESTINATION);
   assert.equal(
     storage.stripStagingPrefix("ordinary/__staging__/nested"),

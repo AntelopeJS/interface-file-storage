@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.1.4
+
+[compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.3...v0.1.4)
+
+### 📖 Documentation
+
+- Rewrite the README ([#17](https://github.com/AntelopeJS/interface-file-storage/pull/17))
+- **agents:** Simplify repository guidance ([#18](https://github.com/AntelopeJS/interface-file-storage/pull/18))
+- Document staging key helpers and compatibility ([#19](https://github.com/AntelopeJS/interface-file-storage/pull/19))
+
+### 🏡 Chore
+
+- Align community files with the organization defaults ([#10](https://github.com/AntelopeJS/interface-file-storage/pull/10))
+- Remove .git-blame-ignore-revs ([#11](https://github.com/AntelopeJS/interface-file-storage/pull/11))
+
+### 🤖 CI
+
+- Use shared npm release workflow ([#9](https://github.com/AntelopeJS/interface-file-storage/pull/9))
+- **release:** Release next from a dedicated branch and restore requireCommits ([#12](https://github.com/AntelopeJS/interface-file-storage/pull/12))
+- **release:** Reference the shared release workflows through v1 ([#13](https://github.com/AntelopeJS/interface-file-storage/pull/13))
+
+### ❤️ Contributors
+
+- Antony Rizzitelli <rizzitelli.antony@pm.me>
+
 ## v0.1.3
 
 [compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.2...v0.1.3)

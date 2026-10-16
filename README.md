@@ -4,7 +4,7 @@
 <a href="https://www.npmjs.com/package/@antelopejs/interface-file-storage"><img alt="npm" src="https://img.shields.io/npm/v/@antelopejs/interface-file-storage?style=for-the-badge&labelColor=000000&color=000000"></a>
 <a href="./LICENSE"><img alt="License" src="https://img.shields.io/npm/l/@antelopejs/interface-file-storage?style=for-the-badge&labelColor=000000&color=000000"></a>
 <a href="https://discord.gg/sjK28QHrA7"><img alt="Discord" src="https://img.shields.io/badge/Discord-18181B?logo=discord&style=for-the-badge&color=000000"></a>
-<a href="https://github.com/AntelopeJS/interface-file-storage/tree/main/docs"><img alt="Docs" src="https://img.shields.io/badge/Docs-18181B?style=for-the-badge&color=000000"></a>
+<a href="./docs/1.introduction.md"><img alt="Docs" src="https://img.shields.io/badge/Docs-18181B?style=for-the-badge&color=000000"></a>
 </div>
 
 The AntelopeJS contract for file storage: clients upload and download files directly with presigned URLs, and your module only signs them and manages the stored objects.
@@ -15,7 +15,8 @@ The AntelopeJS contract for file storage: clients upload and download files dire
 - `CreateReadUrl` returns a permanent URL for a public file and an expiring one for a private file.
 - `FileExists`, `GetFileMetadata`, `MoveFile` and `DeleteFile` manage stored objects.
 - Staged uploads land under a staging prefix until `PromoteFile` confirms them, so abandoned uploads can expire.
-- An optional storage name on every call selects one of several buckets.
+- An optional storage name on each storage operation selects one of several buckets.
+- [Key helpers](./docs/2.file-operations.md#staging-key-helpers) inspect or transform staging keys without accessing storage.
 
 ## Implementations
 
@@ -66,15 +67,20 @@ The client sends the file with a `PUT` to `uploadUrl`, including `headers`. Keep
 
 ## Documentation
 
-- [Introduction](https://github.com/AntelopeJS/interface-file-storage/blob/main/docs/1.introduction.md)
-- [File operations](https://github.com/AntelopeJS/interface-file-storage/blob/main/docs/2.file-operations.md)
+- [Introduction](./docs/1.introduction.md)
+- [File operations](./docs/2.file-operations.md)
 
 ## Compatibility
 
-| Package                             | Range            |
-| ----------------------------------- | ---------------- |
-| `@antelopejs/interface-core` (peer) | `>=0.1.1 <1.0.0` |
-| `@antelopejs/core`                  | `1.x`            |
+<!-- docs-compat: ./package.json#peerDependencies -->
+
+| Package                      | Range            |
+| ---------------------------- | ---------------- |
+| `@antelopejs/interface-core` | `>=0.1.1 <1.0.0` |
+
+This is the peer requirement in `package.json`. `@antelopejs/core` is a
+development/test dependency at `^1.13.4`, not a declared runtime peer. Check the
+implementing module's requirements too.
 
 ## Contributing
 

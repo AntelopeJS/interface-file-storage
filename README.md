@@ -76,10 +76,10 @@ The client sends the file with a `PUT` to `uploadUrl`, including `headers`. Keep
 
 | Package                      | Range            |
 | ---------------------------- | ---------------- |
-| `@antelopejs/interface-core` | `>=0.1.1 <1.0.0` |
+| `@antelopejs/interface-core` | `>=0.2.4 <1.0.0` |
 
 This is the peer requirement in `package.json`. `@antelopejs/core` is a
-development/test dependency at `^1.13.4`, not a declared runtime peer. Check the
+development/test dependency at `^1.16.0`, not a declared runtime peer. Check the
 implementing module's requirements too.
 
 ## Contributing

@@ -66,8 +66,8 @@ The client sends the file with a `PUT` to `uploadUrl`, including `headers`. Keep
 
 ## Documentation
 
-- [Introduction](./docs/1.introduction.md)
-- [File operations](./docs/2.file-operations.md)
+- [Introduction](https://github.com/AntelopeJS/interface-file-storage/blob/main/docs/1.introduction.md)
+- [File operations](https://github.com/AntelopeJS/interface-file-storage/blob/main/docs/2.file-operations.md)
 
 ## Compatibility
 

@@ -17,6 +17,7 @@ import {
   toStagedKey,
   UploadValidationError,
   type Visibility,
+  WriteFile,
 } from "../index";
 
 const CONTENT = "shared storage contract: asymmetric bytes";
@@ -195,6 +196,69 @@ describe("[interface-file-storage] shared conformance", function () {
       (error: unknown) =>
         error instanceof UploadValidationError &&
         error.code === "MIMETYPE_NOT_ALLOWED",
+    );
+  });
+});
+
+describe("[interface-file-storage] server writes", function () {
+  this.timeout(SUITE_TIMEOUT);
+
+  afterEach(async () => {
+    const keys = [...cleanup];
+    cleanup.clear();
+    await Promise.all(keys.map((key) => DeleteFile(key)));
+  });
+
+  for (const visibility of VISIBILITIES) {
+    it(`writes ${visibility} bytes and metadata from the server`, async () => {
+      const { resourceKey } = await WriteFile(
+        {
+          filename: FILENAME,
+          size: Buffer.byteLength(CONTENT),
+          mimetype: MIMETYPE,
+          path: `interface-tests/${randomUUID()}`,
+          metadata: { source: "contract", visibility: "untrusted" },
+          visibility,
+        },
+        Buffer.from(CONTENT),
+        { maxSize: Buffer.byteLength(CONTENT), allowedMimetypes: [MIMETYPE] },
+      );
+      cleanup.add(resourceKey);
+      assert.equal(isStagedKey(resourceKey), false);
+      await assertReadable(resourceKey, visibility);
+      await assertMetadata(resourceKey);
+    });
+  }
+
+  it("writes a staged file from the server that promotes like an upload", async () => {
+    const { resourceKey } = await WriteFile(
+      {
+        filename: FILENAME,
+        size: Buffer.byteLength(CONTENT),
+        mimetype: MIMETYPE,
+        path: `interface-tests/${randomUUID()}`,
+        metadata: { source: "contract", visibility: "untrusted" },
+        staging: true,
+      },
+      Buffer.from(CONTENT),
+    );
+    cleanup.add(resourceKey);
+    cleanup.add(stripStagingPrefix(resourceKey));
+    assert.ok(isStagedKey(resourceKey));
+    const promoted = await PromoteFile(resourceKey);
+    await assertMetadata(promoted.resourceKey);
+  });
+
+  it("rejects a server write whose bytes differ from the declared size", async () => {
+    await assert.rejects(
+      () =>
+        WriteFile(
+          { filename: FILENAME, size: CONTENT.length + 1, mimetype: MIMETYPE },
+          Buffer.from(CONTENT),
+        ),
+      (error: unknown) =>
+        error instanceof UploadValidationError &&
+        error.code === "SIZE_EXCEEDED",
     );
   });
 });

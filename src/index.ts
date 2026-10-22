@@ -73,6 +73,14 @@ export interface PromoteFileResponse {
 }
 
 /**
+ * Response returned after writing a file from the server with {@link WriteFile}.
+ */
+export interface WriteFileResponse {
+  /** Unique resource key to reference this file */
+  resourceKey: string;
+}
+
+/**
  * File metadata information
  */
 export interface FileMetadata {
@@ -193,6 +201,22 @@ export namespace internal {
     >();
 
   /**
+   * Stores bytes the server already holds under a new resource key, with the
+   * same validation, key layout, metadata and create-only guarantee as an
+   * upload through {@link createUploadUrl}, without an HTTP round trip.
+   * Throws UploadValidationError when the bytes do not match request.size.
+   */
+  export const writeFile =
+    InterfaceFunction<
+      (
+        request: UploadRequest,
+        body: Uint8Array,
+        constraints?: UploadConstraints,
+        storage?: string,
+      ) => Promise<WriteFileResponse>
+    >();
+
+  /**
    * Creates a URL to read/download a file.
    * For public files: returns the direct public URL.
    * For private files: returns a presigned GET URL with short expiration.
@@ -279,6 +303,32 @@ export function CreateUploadUrl(
   storage?: string,
 ): Promise<PresignedUploadResponse> {
   return internal.createUploadUrl(request, constraints, storage);
+}
+
+/**
+ * Stores a file the server already holds, without a presigned URL.
+ *
+ * Use it from a module that produces files itself (generated derivatives,
+ * seeded content): a presigned upload needs the storage endpoint to answer
+ * over HTTP, which a local storage served by the API server may not do yet
+ * while modules start. The file gets the key, metadata, visibility and
+ * staging an upload of the same request would get, and is never written over
+ * an existing object.
+ *
+ * @param request - Upload request details; `size` must equal `body.byteLength`
+ * @param body - File bytes
+ * @param constraints - Optional validation constraints
+ * @param storage - Optional storage identifier for multi-bucket setups
+ * @returns The resource key of the stored file
+ * @throws UploadValidationError if constraints are violated or the size differs
+ */
+export function WriteFile(
+  request: UploadRequest,
+  body: Uint8Array,
+  constraints?: UploadConstraints,
+  storage?: string,
+): Promise<WriteFileResponse> {
+  return internal.writeFile(request, body, constraints, storage);
 }
 
 /**

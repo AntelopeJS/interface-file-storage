@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+import { buffer } from "node:stream/consumers";
 
 import {
   CreateReadUrl,
@@ -13,6 +14,7 @@ import {
   MoveFile,
   type PresignedUploadResponse,
   PromoteFile,
+  ReadFile,
   stripStagingPrefix,
   toStagedKey,
   UploadValidationError,
@@ -259,6 +261,39 @@ describe("[interface-file-storage] server writes", function () {
       (error: unknown) =>
         error instanceof UploadValidationError &&
         error.code === "SIZE_EXCEEDED",
+    );
+  });
+});
+
+describe("[interface-file-storage] server reads", function () {
+  this.timeout(SUITE_TIMEOUT);
+
+  afterEach(async () => {
+    const keys = [...cleanup];
+    cleanup.clear();
+    await Promise.all(keys.map((key) => DeleteFile(key)));
+  });
+
+  async function assertServerRead(key: string): Promise<void> {
+    const file = await ReadFile(key);
+    assert.equal(file.size, Buffer.byteLength(CONTENT));
+    assert.equal(file.mimetype, MIMETYPE);
+    assert.equal((await buffer(file.body)).toString(), CONTENT);
+  }
+
+  for (const visibility of VISIBILITIES) {
+    it(`reads ${visibility} bytes on the server, staged then promoted`, async () => {
+      const staged = await upload(visibility);
+      await assertServerRead(staged.resourceKey);
+      const promoted = await PromoteFile(staged.resourceKey);
+      await assertServerRead(promoted.resourceKey);
+    });
+  }
+
+  it("reports a missing file on a server read", async () => {
+    await assert.rejects(
+      () => ReadFile(`interface-tests/${randomUUID()}/absent.txt`),
+      FileNotFoundError,
     );
   });
 });

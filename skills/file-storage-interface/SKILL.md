@@ -72,7 +72,7 @@ import { internal } from "@antelopejs/interface-file-storage";
 
 ImplementInterface(internal, {
   createUploadUrl: async (request, constraints, storage) => ({ /* ... */ }),
-  createReadUrl: /* ... */, deleteFile: /* ... */, fileExists: /* ... */,
+  createReadUrl: /* ... */, readFile: /* ... */, deleteFile: /* ... */, fileExists: /* ... */,
   getFileMetadata: /* ... */,
   moveFile: /* ... */, // MUST no-op on a missing source (idempotent)
 });

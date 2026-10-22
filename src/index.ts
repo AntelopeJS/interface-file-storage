@@ -1,3 +1,4 @@
+import type { Readable } from "node:stream";
 import { InterfaceFunction } from "@antelopejs/interface-core";
 
 /**
@@ -78,6 +79,18 @@ export interface PromoteFileResponse {
 export interface WriteFileResponse {
   /** Unique resource key to reference this file */
   resourceKey: string;
+}
+
+/**
+ * A stored file opened on the server with {@link ReadFile}.
+ */
+export interface ReadFileResponse {
+  /** File bytes, streamed from the storage; destroy it to stop reading early */
+  body: Readable;
+  /** File size in bytes */
+  size: number;
+  /** MIME type */
+  mimetype: string;
 }
 
 /**
@@ -231,6 +244,15 @@ export namespace internal {
     >();
 
   /**
+   * Opens a stored file's bytes on the server, whatever its visibility, without
+   * an HTTP round trip. Throws FileNotFoundError when the file does not exist.
+   */
+  export const readFile =
+    InterfaceFunction<
+      (resourceKey: string, storage?: string) => Promise<ReadFileResponse>
+    >();
+
+  /**
    * Deletes a file from storage.
    */
   export const deleteFile =
@@ -348,6 +370,27 @@ export function CreateReadUrl(
   storage?: string,
 ): Promise<PresignedReadResponse> {
   return internal.createReadUrl(resourceKey, expiresIn, storage);
+}
+
+/**
+ * Reads a stored file from the server, without a read URL.
+ *
+ * Use it when the server itself needs the bytes (image probing, derivatives,
+ * streaming a file through an API route). A read URL points at the public
+ * address of the storage, which the server may not be able to reach: a
+ * backend behind a private network or an egress policy cannot call its own
+ * public origin. Visibility is not checked; the caller authorizes the read.
+ *
+ * @param resourceKey - The unique identifier of the file
+ * @param storage - Optional storage identifier for multi-bucket setups
+ * @returns The file's bytes as a stream, with its size and MIME type
+ * @throws FileNotFoundError if the file does not exist
+ */
+export function ReadFile(
+  resourceKey: string,
+  storage?: string,
+): Promise<ReadFileResponse> {
+  return internal.readFile(resourceKey, storage);
 }
 
 /**

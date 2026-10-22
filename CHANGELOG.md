@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.1.5
+
+[compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.4...v0.1.5)
+
+### 🚀 Enhancements
+
+- WriteFile stores server-held bytes without a presigned URL ([#23](https://github.com/AntelopeJS/interface-file-storage/pull/23))
+
+### 📖 Documentation
+
+- Add task-based reading paths and contract diagrams ([#20](https://github.com/AntelopeJS/interface-file-storage/pull/20))
+- Clarify learning paths and illustrate real outcomes ([#22](https://github.com/AntelopeJS/interface-file-storage/pull/22))
+
+### ❤️ Contributors
+
+- Antony Rizzitelli <rizzitelli.antony@pm.me>
+
 ## v0.1.4
 
 [compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.3...v0.1.4)

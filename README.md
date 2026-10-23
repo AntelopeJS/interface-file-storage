@@ -13,6 +13,7 @@ The AntelopeJS contract for file storage: clients upload and download files dire
 
 - `CreateUploadUrl` signs a direct upload and checks its size and MIME type against your constraints.
 - `CreateReadUrl` returns a permanent URL for a public file and an expiring one for a private file.
+- `ReadFile` streams a file's bytes to the server itself, which may not reach the storage's public address.
 - `FileExists`, `GetFileMetadata`, `MoveFile` and `DeleteFile` manage stored objects.
 - Staged uploads land under a staging prefix until `PromoteFile` confirms them, so abandoned uploads can expire.
 - An optional storage name on each storage operation selects one of several buckets.

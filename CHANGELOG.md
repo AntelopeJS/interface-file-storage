@@ -4,6 +4,12 @@
 
 [compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.5...v0.1.6)
 
+### Upgrade notes
+
+- `ReadFile(resourceKey, storage?)` returns `{ body: Readable, size, mimetype }`: it streams a stored file on the server, whatever its visibility, without a read URL (the caller authorizes; a missing file throws `FileNotFoundError`) ([#24](https://github.com/AntelopeJS/interface-file-storage/pull/24)). Use it when the backend cannot reach the storage's public origin (egress policy, private network).
+- **Breaking for providers:** `internal.readFile` is a new required handler. A provider without it fails to construct ("Missing or malformed interface handler at implementation.internal.readFile"). Upgrade providers together with this release: `@antelopejs/file-storage-local` ≥ 0.1.13 and `@antelopejs/file-storage-s3` ≥ 0.1.9, which implement `>=0.1.6 <0.2.0`. Older providers (`>=0.1.5 <0.2.0`) resolve 0.1.6 and fail.
+- The shared conformance suite gains `server reads` (private and public, staged then promoted, missing).
+
 ### 🚀 Enhancements
 
 - ReadFile reads a stored file on the server without a read URL ([#24](https://github.com/AntelopeJS/interface-file-storage/pull/24))

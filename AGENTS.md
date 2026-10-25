@@ -5,7 +5,7 @@
 ## Layout
 
 - `src/index.ts` is the whole public interface: the functions, the `internal` handlers a provider implements, the error classes, and the staging key helpers.
-- `src/tests/file-storage.test.ts` is the shared provider conformance suite. It builds to `dist/tests/file-storage.test.js` and ships in the package; providers such as `file-storage-s3` and `file-storage-local` load it by that path. Nothing in this repository imports it, so do not delete or move it as dead code.
+- `src/tests/file-storage.test.ts` is the shared provider conformance suite. It builds to `dist/tests/file-storage.test.js` and ships in the package. In a provider that lists this package in `antelopeJs.implements`, `ajs module test` runs every `*.test.js` in this package's `dist/tests/`, so any test added under `src/tests/` runs in every provider. `file-storage-s3` and `file-storage-local` also fail early when `dist/tests/file-storage.test.js` is missing. Nothing in this repository imports it, so keep its name and location and do not delete it as dead code.
 - `test/promotion.test.js` holds the forwarding unit tests. They run against the built `dist` through `ajs module test .`, configured by `src/antelope.test.ts`.
 - `docs/` and `skills/` ship in the npm package. Update them, and the matching `SKILL.md`, when the contract changes.
 

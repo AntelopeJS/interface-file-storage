@@ -40,6 +40,11 @@ async function request(url: string, options?: RequestInit): Promise<Response> {
   });
 }
 
+function uploadValidationFailure(code: UploadValidationError["code"]) {
+  return (error: Error): boolean =>
+    error instanceof UploadValidationError && error.code === code;
+}
+
 async function upload(
   visibility: Visibility,
 ): Promise<PresignedUploadResponse> {
@@ -182,9 +187,7 @@ describe("[interface-file-storage] shared conformance", function () {
           { filename: FILENAME, size: CONTENT.length, mimetype: MIMETYPE },
           { maxSize: CONTENT.length - 1 },
         ),
-      (error: unknown) =>
-        error instanceof UploadValidationError &&
-        error.code === "SIZE_EXCEEDED",
+      uploadValidationFailure("SIZE_EXCEEDED"),
     );
   });
 
@@ -195,9 +198,7 @@ describe("[interface-file-storage] shared conformance", function () {
           { filename: FILENAME, size: CONTENT.length, mimetype: MIMETYPE },
           { allowedMimetypes: ["image/png"] },
         ),
-      (error: unknown) =>
-        error instanceof UploadValidationError &&
-        error.code === "MIMETYPE_NOT_ALLOWED",
+      uploadValidationFailure("MIMETYPE_NOT_ALLOWED"),
     );
   });
 });
@@ -258,9 +259,7 @@ describe("[interface-file-storage] server writes", function () {
           { filename: FILENAME, size: CONTENT.length + 1, mimetype: MIMETYPE },
           Buffer.from(CONTENT),
         ),
-      (error: unknown) =>
-        error instanceof UploadValidationError &&
-        error.code === "SIZE_EXCEEDED",
+      uploadValidationFailure("SIZE_EXCEEDED"),
     );
   });
 });

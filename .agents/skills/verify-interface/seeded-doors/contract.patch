@@ -1,0 +1,13 @@
+diff --git a/src/index.ts b/src/index.ts
+index 40c1b2a..458961a 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -446,7 +446,7 @@ export function GetFileMetadata(
+  * @param destKey - The target resource key
+  * @param storage - Optional storage identifier for multi-bucket setups
+  */
+-export function MoveFile(
++export function RenameFile(
+   sourceKey: string,
+   destKey: string,
+   storage?: string,

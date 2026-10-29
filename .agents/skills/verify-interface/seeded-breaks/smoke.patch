@@ -1,0 +1,13 @@
+diff --git a/src/index.ts b/src/index.ts
+index 40c1b2a..2af5d3b 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -451,7 +451,7 @@ export function MoveFile(
+   destKey: string,
+   storage?: string,
+ ): Promise<void> {
+-  return internal.moveFile(sourceKey, destKey, storage);
++  return internal.moveFile(destKey, sourceKey, storage);
+ }
+ 
+ /**

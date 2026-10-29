@@ -1,0 +1,14 @@
+diff --git a/src/index.ts b/src/index.ts
+index 40c1b2a..9ee3809 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -172,9 +172,6 @@ export function isStagedKey(resourceKey: string): boolean {
+  * @returns The key prefixed with {@link STAGING_PREFIX}
+  */
+ export function toStagedKey(resourceKey: string): string {
+-  if (isStagedKey(resourceKey)) {
+-    return resourceKey;
+-  }
+   return `${STAGING_PREFIX}${resourceKey}`;
+ }
+ 

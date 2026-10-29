@@ -30,19 +30,21 @@ interface Printed {
   [key: string]: string | boolean | string[];
 }
 
-/** Loads the packed interface next to a stub provider and calls each exported function through core: it must reach its `internal` proxy with every argument, the storage id included. */
-function throughCore(title: string, names: WrapperName[]): Journey {
+/** Loads the packed interface next to a stub provider and calls each exported function through core: it must reach its `internal` proxy with every argument, the storage id included. With `omitStorage` the consumer leaves the storage id out and the provider must receive none (JSON shows an absent argument as null), so the provider, not this interface, picks the default storage. */
+function throughCore(title: string, names: WrapperName[], omitStorage = false): Journey {
   return {
     title,
     entryPoint: "a consumer module calling the packed interface in `ajs project dev`",
     async run(context) {
       const app = await context.dev("ajs project dev", context.fixture());
       for (const name of names) {
-        const { proxy, args } = WRAPPERS[name];
+        const { proxy, args: full } = WRAPPERS[name];
+        const args = omitStorage ? full.slice(0, -1) : full;
+        const forwarded = omitStorage ? [...args, null] : args;
         const result = await context.call(`call ${name}`, app, { path: [name], args });
         context.expect(result.folder, [
           { name: `${name} resolved through core`, pass: result.ok, detail: JSON.stringify(result.value) },
-          equal(`${name} reached the provider's ${proxy} with its arguments`, result.value, { stub: `.:internal.${proxy}`, args }),
+          equal(`${name} reached the provider's ${proxy} with its arguments`, result.value, { stub: `.:internal.${proxy}`, args: forwarded }),
         ]);
       }
       const stopped = await context.stop("SIGINT", app);
@@ -112,6 +114,23 @@ const config: VerifyConfig = {
       "MoveFile",
       "PromoteFile",
     ]),
+    "omitted-storage": throughCore(
+      "a call without a storage id reaches the provider without one",
+      ["CreateUploadUrl", "WriteFile", "CreateReadUrl", "ReadFile", "DeleteFile", "FileExists", "GetFileMetadata", "MoveFile", "PromoteFile"],
+      true,
+    ),
+    "staged-key-position": packed(
+      "the staging prefix counts only at the start of a key",
+      'console.log(JSON.stringify({ inside: c.isStagedKey("avatars/__staging__/photo.png"), stripped: c.stripStagingPrefix("avatars/__staging__/photo.png"), staged: c.toStagedKey("avatars/__staging__/photo.png") }))',
+      { inside: false, stripped: "avatars/__staging__/photo.png", staged: "__staging__/avatars/__staging__/photo.png" },
+      "prefix inside a key",
+    ),
+    "staged-key-prefix": packed(
+      "the staging prefix is the whole reserved string, trailing slash included",
+      'console.log(JSON.stringify({ bare: c.isStagedKey("__staging__"), near: c.isStagedKey("__staging__x/photo.png"), empty: c.isStagedKey("__staging__/"), stripBare: c.stripStagingPrefix("__staging__"), stripEmpty: c.stripStagingPrefix("__staging__/"), stagedNear: c.toStagedKey("__staging__x/photo.png") }))',
+      { bare: false, near: false, empty: true, stripBare: "__staging__", stripEmpty: "", stagedNear: "__staging__/__staging__x/photo.png" },
+      "prefix lookalikes",
+    ),
     "staging-keys": packed(
       "the staging key helpers behave as docs/2.file-operations.md states",
       'console.log(JSON.stringify({ prefix: c.STAGING_PREFIX, staged: c.toStagedKey("avatars/photo.png"), again: c.toStagedKey("__staging__/avatars/photo.png"), isStaged: c.isStagedKey("__staging__/a"), isPlain: c.isStagedKey("a"), strip: c.stripStagingPrefix("__staging__/avatars/photo.png"), stripPlain: c.stripStagingPrefix("avatars/photo.png"), stripOnce: c.stripStagingPrefix("__staging__/__staging__/x") }))',

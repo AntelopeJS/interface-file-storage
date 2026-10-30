@@ -23,22 +23,19 @@ const WRAPPERS = {
   PromoteFile: { name: "PromoteFile", proxy: "promoteFile", args: ["__staging__/avatars/photo.png", "media"] },
 } satisfies { [name: string]: Wrapper };
 
-type WrapperName = keyof typeof WRAPPERS;
-
 /** What a packed-interface script prints, as the JSON the journey compares it with. */
 interface Printed {
   [key: string]: string | boolean | string[];
 }
 
 /** Loads the packed interface next to a stub provider and calls each exported function through core: it must reach its `internal` proxy with every argument, the storage id included. With `omitStorage` the consumer leaves the storage id out and the provider must receive none (JSON shows an absent argument as null), so the provider, not this interface, picks the default storage. */
-function throughCore(title: string, names: WrapperName[], omitStorage = false): Journey {
+function throughCore(title: string, wrappers: Wrapper[], omitStorage = false): Journey {
   return {
     title,
     entryPoint: "a consumer module calling the packed interface in `ajs project dev`",
     async run(context) {
       const app = await context.dev("ajs project dev", context.fixture());
-      for (const name of names) {
-        const { proxy, args: full } = WRAPPERS[name];
+      for (const { name, proxy, args: full } of wrappers) {
         const args = omitStorage ? full.slice(0, -1) : full;
         const forwarded = omitStorage ? [...args, null] : args;
         const result = await context.call(`call ${name}`, app, { path: [name], args });
@@ -94,29 +91,19 @@ const config: VerifyConfig = {
     },
   },
   journeys: {
-    "upload-calls": throughCore("CreateUploadUrl and WriteFile reach the provider", ["CreateUploadUrl", "WriteFile"]),
+    "upload-calls": throughCore("CreateUploadUrl and WriteFile reach the provider", [WRAPPERS.CreateUploadUrl, WRAPPERS.WriteFile]),
     "objects-calls": throughCore("CreateReadUrl, ReadFile, DeleteFile, FileExists and GetFileMetadata reach the provider", [
-      "CreateReadUrl",
-      "ReadFile",
-      "DeleteFile",
-      "FileExists",
-      "GetFileMetadata",
+      WRAPPERS.CreateReadUrl,
+      WRAPPERS.ReadFile,
+      WRAPPERS.DeleteFile,
+      WRAPPERS.FileExists,
+      WRAPPERS.GetFileMetadata,
     ]),
-    "staging-calls": throughCore("PromoteFile and MoveFile reach the provider", ["PromoteFile", "MoveFile"]),
-    "every-wrapper": throughCore("all nine storage functions reach the provider", [
-      "CreateUploadUrl",
-      "WriteFile",
-      "CreateReadUrl",
-      "ReadFile",
-      "DeleteFile",
-      "FileExists",
-      "GetFileMetadata",
-      "MoveFile",
-      "PromoteFile",
-    ]),
+    "staging-calls": throughCore("PromoteFile and MoveFile reach the provider", [WRAPPERS.PromoteFile, WRAPPERS.MoveFile]),
+    "every-wrapper": throughCore("all nine storage functions reach the provider", Object.values(WRAPPERS)),
     "omitted-storage": throughCore(
       "a call without a storage id reaches the provider without one",
-      ["CreateUploadUrl", "WriteFile", "CreateReadUrl", "ReadFile", "DeleteFile", "FileExists", "GetFileMetadata", "MoveFile", "PromoteFile"],
+      Object.values(WRAPPERS),
       true,
     ),
     "staged-key-position": packed(

@@ -73,11 +73,13 @@ The client sends the file with a `PUT` to `uploadUrl`, including `headers`. Keep
 
 ## Compatibility
 
-<!-- docs-compat: ./package.json#peerDependencies -->
+<!-- antelopejs-docs-compat:start -->
 
-| Package                      | Range            |
-| ---------------------------- | ---------------- |
-| `@antelopejs/interface-core` | `>=0.2.4 <1.0.0` |
+| Package                      | Supported        | Tested with |
+| ---------------------------- | ---------------- | ----------- |
+| `@antelopejs/interface-core` | `>=0.2.4 <1.0.0` | `0.2.4`     |
+
+<!-- antelopejs-docs-compat:end -->
 
 This is the peer requirement in `package.json`. `@antelopejs/core` is a
 development/test dependency at `^1.16.0`, not a declared runtime peer. Check the

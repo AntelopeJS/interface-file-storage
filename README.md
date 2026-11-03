@@ -1,21 +1,22 @@
-# @antelopejs/interface-file-storage
+# `@antelopejs/interface-file-storage`
 
 <div align="center">
-<a href="https://www.npmjs.com/package/@antelopejs/interface-file-storage"><img alt="npm" src="https://img.shields.io/npm/v/@antelopejs/interface-file-storage?style=for-the-badge&labelColor=000000&color=000000"></a>
-<a href="./LICENSE"><img alt="License" src="https://img.shields.io/npm/l/@antelopejs/interface-file-storage?style=for-the-badge&labelColor=000000&color=000000"></a>
-<a href="https://discord.gg/g4pFt6eXqu"><img alt="Discord" src="https://img.shields.io/badge/Discord-18181B?logo=discord&style=for-the-badge&color=000000"></a>
-<a href="./docs/1.introduction.md"><img alt="Docs" src="https://img.shields.io/badge/Docs-18181B?style=for-the-badge&color=000000"></a>
+<a href="https://www.npmjs.com/package/@antelopejs/interface-file-storage"><img data-illustration alt="npm" src="https://img.shields.io/npm/v/@antelopejs/interface-file-storage?style=for-the-badge&labelColor=000000&color=000000"></a>
+<a href="./LICENSE"><img data-illustration alt="License" src="https://img.shields.io/npm/l/@antelopejs/interface-file-storage?style=for-the-badge&labelColor=000000&color=000000"></a>
+<a href="https://discord.gg/g4pFt6eXqu"><img data-illustration alt="Discord" src="https://img.shields.io/badge/Discord-18181B?logo=discord&style=for-the-badge&color=000000"></a>
+<a href="./docs/1.introduction.md"><img data-illustration alt="Docs" src="https://img.shields.io/badge/Docs-18181B?style=for-the-badge&color=000000"></a>
 </div>
 
-The AntelopeJS contract for file storage: clients upload and download files directly with presigned URLs, and your module only signs them and manages the stored objects.
+The AntelopeJS contract for file storage. Clients upload and download files directly with presigned URLs, and your module signs the URLs and manages the stored objects.
 
 ## What it offers
 
 - `CreateUploadUrl` signs a direct upload and checks its size and MIME type against your constraints.
 - `CreateReadUrl` returns a permanent URL for a public file and an expiring one for a private file.
+- `WriteFile` stores bytes the server already holds, without a presigned URL.
 - `ReadFile` streams a file's bytes to the server itself, which may not reach the storage's public address.
 - `FileExists`, `GetFileMetadata`, `MoveFile` and `DeleteFile` manage stored objects.
-- Staged uploads land under a staging prefix until `PromoteFile` confirms them, so abandoned uploads can expire.
+- Staged uploads stay under a staging prefix until `PromoteFile` confirms them, so abandoned uploads can expire.
 - An optional storage name on each storage operation selects one of several buckets.
 - [Key helpers](./docs/2.file-operations.md#staging-key-helpers) inspect or transform staging keys without accessing storage.
 
@@ -70,6 +71,7 @@ The client sends the file with a `PUT` to `uploadUrl`, including `headers`. Keep
 
 - [Introduction](./docs/1.introduction.md)
 - [File operations](./docs/2.file-operations.md)
+- [Provider promotion contract](./docs/3.provider-contract.md)
 
 ## Compatibility
 
@@ -81,9 +83,7 @@ The client sends the file with a `PUT` to `uploadUrl`, including `headers`. Keep
 
 <!-- antelopejs-docs-compat:end -->
 
-This is the peer requirement in `package.json`. `@antelopejs/core` is a
-development/test dependency at `^1.16.0`, not a declared runtime peer. Check the
-implementing module's requirements too.
+The table lists the peer dependencies from `package.json`. `@antelopejs/core` is a development dependency, not a peer. Check the requirements of the implementing module too.
 
 ## Contributing
 

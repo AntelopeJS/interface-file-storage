@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.1.7
+
+[compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.6...v0.1.7)
+
+### 🚀 Enhancements
+
+- **skills:** Add the verify-interface verification skill ([#29](https://github.com/AntelopeJS/interface-file-storage/pull/29))
+
+### 💅 Refactors
+
+- Clean the repo with the guardrail pack ([#28](https://github.com/AntelopeJS/interface-file-storage/pull/28))
+
+### 📖 Documentation
+
+- **changelog:** Upgrade notes of interface-file-storage 0.1.6 ([#25](https://github.com/AntelopeJS/interface-file-storage/pull/25))
+- **readme:** Use one Discord invite ([#34](https://github.com/AntelopeJS/interface-file-storage/pull/34))
+- **github:** Send questions and ideas to Discord ([#35](https://github.com/AntelopeJS/interface-file-storage/pull/35))
+
+### 📦 Build
+
+- **deps:** Bump @antelopejs/tooling-configs to 0.2.17 ([#31](https://github.com/AntelopeJS/interface-file-storage/pull/31))
+
+### 🏡 Chore
+
+- Adopt the guardrail pack from tooling-configs 0.2.0 ([#26](https://github.com/AntelopeJS/interface-file-storage/pull/26))
+- Configure Renovate with the shared preset ([#27](https://github.com/AntelopeJS/interface-file-storage/pull/27))
+- Land the cleanup campaign on main ([#38](https://github.com/AntelopeJS/interface-file-storage/pull/38))
+
+### ✅ Tests
+
+- **skills:** Cover the staging key boundaries and the omitted storage id in verify-interface ([#30](https://github.com/AntelopeJS/interface-file-storage/pull/30))
+
+### ❤️ Contributors
+
+- Antony Rizzitelli ([@Upd4ting](http://github.com/Upd4ting))
+
 ## v0.1.6
 
 [compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.5...v0.1.6)

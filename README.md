@@ -9,6 +9,8 @@
 
 The AntelopeJS contract for file storage. Clients upload and download files directly with presigned URLs, and your module signs the URLs and manages the stored objects.
 
+Part of [AntelopeJS](https://github.com/AntelopeJS/antelopejs). Used by [AntelopeJS DMS](https://github.com/AntelopeJS/dms), the open-source back office for your PostgreSQL, MongoDB or RethinkDB database.
+
 ## What it offers
 
 - `CreateUploadUrl` signs a direct upload and checks its size and MIME type against your constraints.

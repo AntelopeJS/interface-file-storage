@@ -73,20 +73,17 @@ const config: VerifyConfig = {
     contract: {
       globs: ["src/index.ts", "package.json"],
       funnels: [],
-      containments: [],
       why: "the nine storage functions, the key helpers and the error classes are what every upload and download flow imports",
     },
     outbound: null,
     exposure: {
       globs: ["src/index.ts"],
       funnels: [],
-      containments: [],
       why: "UploadRequest.visibility and CreateReadUrl decide whether a file is public or readable only through an expiring URL",
     },
     publish: {
       globs: ["package.json", ".release-it.json", "changelogen.config.json", ".github/workflows/release.yml"],
       funnels: [],
-      containments: [],
       why: "the package name and release workflow claim @antelopejs/interface-file-storage on npm",
     },
   },

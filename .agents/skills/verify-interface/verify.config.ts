@@ -88,15 +88,6 @@ const config: VerifyConfig = {
     },
   },
   journeys: {
-    "upload-calls": throughCore("CreateUploadUrl and WriteFile reach the provider", [WRAPPERS.CreateUploadUrl, WRAPPERS.WriteFile]),
-    "objects-calls": throughCore("CreateReadUrl, ReadFile, DeleteFile, FileExists and GetFileMetadata reach the provider", [
-      WRAPPERS.CreateReadUrl,
-      WRAPPERS.ReadFile,
-      WRAPPERS.DeleteFile,
-      WRAPPERS.FileExists,
-      WRAPPERS.GetFileMetadata,
-    ]),
-    "staging-calls": throughCore("PromoteFile and MoveFile reach the provider", [WRAPPERS.PromoteFile, WRAPPERS.MoveFile]),
     "every-wrapper": throughCore("all nine storage functions reach the provider", Object.values(WRAPPERS)),
     "omitted-storage": throughCore(
       "a call without a storage id reaches the provider without one",

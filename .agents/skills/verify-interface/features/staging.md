@@ -5,7 +5,6 @@ docs:
   - docs/2.file-operations.md
   - docs/3.provider-contract.md
 journeys:
-  - staging-calls
   - staging-keys
 ---
 
@@ -15,7 +14,7 @@ An upload with `staging: true` lands under the reserved prefix `__staging__/`. T
 
 ## Sub-features
 
-- `staging-calls`: `PromoteFile` and `MoveFile` reach the provider's `internal` proxies with their keys and the storage id.
+- Forwarding: smoke's `every-wrapper`, which every verdict runs, checks that `PromoteFile` and `MoveFile` reach the provider's `internal` proxies with their keys and the storage id.
 - `staging-keys`: the helpers on the packed `dist/index.js` do what the table in `docs/2.file-operations.md` says: the prefix is added once, removed once, and a non-staged key is left unchanged.
 
 ## How to get to it (user POV)

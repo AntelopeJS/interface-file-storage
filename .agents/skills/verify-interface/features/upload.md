@@ -5,7 +5,6 @@ docs:
   - docs/1.introduction.md
   - docs/2.file-operations.md
 journeys:
-  - upload-calls
   - upload-errors
 ---
 
@@ -15,7 +14,7 @@ A server calls `CreateUploadUrl` for a presigned upload URL (the client then PUT
 
 ## Sub-features
 
-- `upload-calls`: the packed interface loads in `ajs project dev` next to a stub provider; `CreateUploadUrl` and `WriteFile` each reach the provider's `internal` proxy with the request, the constraints and the storage id, in order.
+- Forwarding: smoke's `every-wrapper`, which every verdict runs, checks that `CreateUploadUrl` and `WriteFile` each reach the provider's `internal` proxy with the request, the constraints and the storage id, in order.
 - `upload-errors`: `UploadValidationError` from the packed `dist/index.js` is an `Error` with the name, message and `code` the docs describe.
 
 ## How to get to it (user POV)

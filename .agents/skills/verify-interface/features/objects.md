@@ -5,7 +5,6 @@ docs:
   - docs/1.introduction.md
   - docs/2.file-operations.md
 journeys:
-  - objects-calls
   - objects-errors
 ---
 
@@ -15,7 +14,7 @@ A server hands out a read URL (`CreateReadUrl`, with an expiry for private files
 
 ## Sub-features
 
-- `objects-calls`: the five functions reach the provider's `internal` proxies with the key, the expiry where there is one, and the storage id.
+- Forwarding: smoke's `every-wrapper`, which every verdict runs, checks that the five functions reach the provider's `internal` proxies with the key, the expiry where there is one, and the storage id.
 - `objects-errors`: `FileNotFoundError` carries `File not found: <key>`, `FileConflictError` carries the code `FILE_CONFLICT`, both from the packed `dist/index.js`.
 
 ## How to get to it (user POV)

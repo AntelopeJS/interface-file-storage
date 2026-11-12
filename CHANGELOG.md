@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.1.8
+
+[compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.7...v0.1.8)
+
+### 🔥 Performance
+
+- **verify:** Drop the forwarding journeys smoke already runs ([#44](https://github.com/AntelopeJS/interface-file-storage/pull/44))
+
+### 📖 Documentation
+
+- **readme:** Link the package to AntelopeJS and AntelopeJS DMS ([116d3b5](https://github.com/AntelopeJS/interface-file-storage/commit/116d3b5))
+
+### 📦 Build
+
+- **deps:** Bump @antelopejs packages to the 2026-11-06 releases ([#43](https://github.com/AntelopeJS/interface-file-storage/pull/43))
+- **deps:** Bump @antelopejs/tooling-configs to 0.4.0 ([#45](https://github.com/AntelopeJS/interface-file-storage/pull/45))
+- **deps:** Bump @antelopejs/tooling-configs to 0.5.0 ([#46](https://github.com/AntelopeJS/interface-file-storage/pull/46))
+- **deps:** Bump @antelopejs/tooling-configs to 0.5.1 ([#47](https://github.com/AntelopeJS/interface-file-storage/pull/47))
+
+### 🏡 Chore
+
+- **verify:** Remove seeded runs from the verification skill ([#40](https://github.com/AntelopeJS/interface-file-storage/pull/40))
+- **ci:** Remove the weekly mutation caller ([#41](https://github.com/AntelopeJS/interface-file-storage/pull/41))
+
+### 🤖 CI
+
+- Call ci-node.yml@v1 ([#42](https://github.com/AntelopeJS/interface-file-storage/pull/42))
+
+### ❤️ Contributors
+
+- Antony Rizzitelli ([@Upd4ting](http://github.com/Upd4ting))
+
 ## v0.1.7
 
 [compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.6...v0.1.7)

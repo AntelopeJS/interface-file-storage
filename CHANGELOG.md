@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.1.9
+
+[compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.8...v0.1.9)
+
+### 📖 Documentation
+
+- **readme:** Adopt the AntelopeJS framework README style ([#48](https://github.com/AntelopeJS/interface-file-storage/pull/48))
+
+### 📦 Build
+
+- Move to @antelopejs/tooling-configs 0.8 and the three-tier CI ([#51](https://github.com/AntelopeJS/interface-file-storage/pull/51))
+
+### 🏡 Chore
+
+- **deps:** Move to tooling-configs 0.7 and cap @antelopejs ranges below the next minor ([#50](https://github.com/AntelopeJS/interface-file-storage/pull/50))
+
+### 🤖 CI
+
+- Run the check jobs on Windows beside Linux ([#49](https://github.com/AntelopeJS/interface-file-storage/pull/49))
+
+### ❤️ Contributors
+
+- Antony Rizzitelli
+
 ## v0.1.8
 
 [compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.7...v0.1.8)

@@ -124,6 +124,10 @@ export class UploadValidationError extends Error {
   }
 }
 
+const FILE_NOT_FOUND_ERROR_BRAND = Symbol.for(
+  "@antelopejs/interface-file-storage/FileNotFoundError",
+);
+
 /**
  * Error thrown when a file is not found
  */
@@ -131,7 +135,27 @@ export class FileNotFoundError extends Error {
   constructor(resourceKey: string) {
     super(`File not found: ${resourceKey}`);
     this.name = "FileNotFoundError";
+    Object.defineProperty(this, FILE_NOT_FOUND_ERROR_BRAND, { value: true });
   }
+}
+
+/**
+ * Whether a value is a `FileNotFoundError`, including one thrown by another copy of this package.
+ *
+ * Prefer it to `instanceof FileNotFoundError`, which fails across module copies.
+ *
+ * @param value Value to test
+ * @returns True when the value carries its own non-enumerable brand set to true; an inherited brand does not count
+ */
+export function IsFileNotFoundError<T>(
+  value: T,
+): value is T & FileNotFoundError {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Object.getOwnPropertyDescriptor(value, FILE_NOT_FOUND_ERROR_BRAND)
+      ?.value === true
+  );
 }
 
 /** An occupied or incomplete destination cannot be verified as this promotion. */

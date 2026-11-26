@@ -124,3 +124,82 @@ it("canonical promotion strips only the leading staging prefix", () => {
     "tenant/__staging__/nested",
   );
 });
+
+describe("IsFileNotFoundError", () => {
+  const BRAND = Symbol.for(
+    "@antelopejs/interface-file-storage/FileNotFoundError",
+  );
+
+  it("accepts a FileNotFoundError", () => {
+    assert.equal(
+      storage.IsFileNotFoundError(new storage.FileNotFoundError("a")),
+      true,
+    );
+  });
+
+  /**
+   * @param {unknown} value
+   * @returns {value is object}
+   */
+  function isObject(value) {
+    return typeof value === "object" && value !== null;
+  }
+
+  /**
+   * @param {unknown} value
+   * @returns {value is Function}
+   */
+  function isFunction(value) {
+    return typeof value === "function";
+  }
+
+  /**
+   * @param {unknown} copy
+   * @param {string} key
+   * @returns {unknown}
+   */
+  function constructFrom(copy, key) {
+    assert.ok(isObject(copy));
+    assert.ok("FileNotFoundError" in copy);
+    assert.ok(isFunction(copy.FileNotFoundError));
+    assert.notEqual(copy.FileNotFoundError, storage.FileNotFoundError);
+    return Reflect.construct(copy.FileNotFoundError, [key]);
+  }
+
+  it("accepts an error built by a second copy of the package", () => {
+    const copyPath = require.resolve("../dist/index.js");
+    const first = storage;
+    delete require.cache[copyPath];
+    const error = constructFrom(require(copyPath), "a");
+    assert.equal(error instanceof first.FileNotFoundError, false);
+    assert.equal(first.IsFileNotFoundError(error), true);
+  });
+
+  it("rejects a value whose brand is only inherited", () => {
+    const inherited = { __proto__: new storage.FileNotFoundError("a") };
+    assert.equal(Object.hasOwn(inherited, BRAND), false);
+    assert.equal(
+      storage.IsFileNotFoundError(Object.getPrototypeOf(inherited)),
+      true,
+    );
+    assert.equal(storage.IsFileNotFoundError(inherited), false);
+  });
+
+  it("rejects a brand that is not exactly true", () => {
+    const fake = Object.defineProperty(new Error("a"), BRAND, { value: 1 });
+    assert.equal(storage.IsFileNotFoundError(fake), false);
+  });
+
+  it("rejects non-errors and plain errors", () => {
+    for (const value of [
+      null,
+      undefined,
+      "File not found",
+      42,
+      {},
+      new Error("a"),
+    ]) {
+      assert.equal(storage.IsFileNotFoundError(value), false);
+    }
+  });
+});

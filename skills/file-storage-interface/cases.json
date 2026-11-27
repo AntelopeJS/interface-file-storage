@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "file-storage-interface-upload-url",
+      "area": "modules",
+      "style": "clean",
+      "prompt": "How do I let a browser upload a file straight to the storage backend with a presigned URL in my module?",
+      "expect": {
+        "skills": ["file-storage-interface"],
+        "acceptable": ["antelopejs", "core-interface"],
+        "mustMention": ["CreateUploadUrl"]
+      }
+    },
+    {
+      "id": "file-storage-interface-not-found-casual",
+      "area": "modules",
+      "style": "casual",
+      "prompt": "how do i tell that a stored file is missing when GetFileMetadata blows up?",
+      "expect": {
+        "skills": ["file-storage-interface"],
+        "acceptable": ["antelopejs", "core-interface"],
+        "mustMention": ["IsFileNotFoundError"]
+      }
+    },
+    {
+      "id": "file-storage-interface-api-neighbour",
+      "area": "modules",
+      "style": "clean",
+      "prompt": "How do I add a GET endpoint with a controller and a JSON body parameter in my module?",
+      "expect": {
+        "skills": ["api-interface"],
+        "acceptable": ["antelopejs", "core-interface"],
+        "avoid": ["file-storage-interface"]
+      }
+    }
+  ]
+}

@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.1.10
+
+[compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.9...v0.1.10)
+
+### 🚀 Enhancements
+
+- Add IsFileNotFoundError brand guard ([#57](https://github.com/AntelopeJS/interface-file-storage/pull/57))
+
+### 📖 Documentation
+
+- **skill:** Name IsFileNotFoundError guard ([#60](https://github.com/AntelopeJS/interface-file-storage/pull/60))
+
+### 📦 Build
+
+- Roll out the trunk CI with tooling-configs 0.8.9 ([#53](https://github.com/AntelopeJS/interface-file-storage/pull/53))
+
+### 🏡 Chore
+
+- **deps:** Update dependency oxlint-tsgolint to v7.0.2008 ([#58](https://github.com/AntelopeJS/interface-file-storage/pull/58))
+
+### 🤖 CI
+
+- Re-sync the AntelopeJS pack for the release app ([#55](https://github.com/AntelopeJS/interface-file-storage/pull/55))
+- Stop forwarding the retired RELEASE_GITHUB_TOKEN ([#56](https://github.com/AntelopeJS/interface-file-storage/pull/56))
+
+### ❤️ Contributors
+
+- Antony Rizzitelli
+
 ## v0.1.9
 
 [compare changes](https://github.com/AntelopeJS/interface-file-storage/compare/v0.1.8...v0.1.9)

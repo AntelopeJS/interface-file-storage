@@ -28,6 +28,7 @@ import {
   stripStagingPrefix,
   UploadValidationError,
   FileNotFoundError,
+  IsFileNotFoundError,
 } from "@antelopejs/interface-file-storage";
 import type {
   UploadRequest,
@@ -84,7 +85,7 @@ Do not implement `PromoteFile` in a backend — the promotion/idempotency contra
 
 - The upload URL signs `Content-Type` and `Content-Length`: the client PUT must send the returned `headers` and the exact declared size/mimetype, or the signature is rejected.
 - Every function is async and queues until a provider attaches — always `await`; never treat results as synchronous values at module-load time.
-- `CreateUploadUrl` throws `UploadValidationError` (`code` is `"SIZE_EXCEEDED"` or `"MIMETYPE_NOT_ALLOWED"`) when constraints are violated; `GetFileMetadata` throws `FileNotFoundError` for missing keys.
+- `CreateUploadUrl` throws `UploadValidationError` (`code` is `"SIZE_EXCEEDED"` or `"MIMETYPE_NOT_ALLOWED"`) when constraints are violated; `GetFileMetadata` throws `FileNotFoundError` for missing keys; test for it with `IsFileNotFoundError(error)`, never `instanceof`, so an error thrown by another copy of this package still matches.
 - Staged files live under `STAGING_PREFIX` (`"__staging__/"`) so backends can auto-expire abandoned uploads; anything you intend to keep must be promoted. `PromoteFile` is safe to call twice, but throws `FileNotFoundError` if the staged object expired before promotion.
 - Visibility (`"public"` | `"private"`) defaults to the storage configuration. `UploadRequest.visibility` overrides it for one file and survives staging/promotion. Omitting the field preserves storage-wide behavior. Public files return a permanent `url` with `expiresAt` undefined; private files return a presigned URL plus `expiresAt`.
 - The optional trailing `storage` parameter on every function selects a bucket/backend in multi-storage setups; omit it for the default storage.
